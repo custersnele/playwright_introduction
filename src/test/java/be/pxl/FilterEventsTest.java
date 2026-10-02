@@ -11,9 +11,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.nio.file.Path;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -22,7 +21,7 @@ class FilterEventsTest {
 	// Shared between all tests in this class.
 	private static Playwright playwright;
 	private static Browser browser;
-	private String URL = "http://localhost:5001/app/catalog.html";
+	private static final String URL = TestConfig.appUrl() + "catalog.html";
 
 	// New instance for each test method.
 	private BrowserContext context;
@@ -31,7 +30,7 @@ class FilterEventsTest {
 	@BeforeAll
 	static void launchBrowser() {
 		playwright = Playwright.create();
-		BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(false);
+		BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(TestConfig.headless());
 		browser = playwright.chromium().launch(options);
 	}
 
@@ -44,6 +43,7 @@ class FilterEventsTest {
 	void createContextAndPage() {
 		context = browser.newContext();
 		page = context.newPage();
+		page.navigate(URL);
 	}
 
 	@AfterEach
@@ -51,21 +51,41 @@ class FilterEventsTest {
 		context.close();
 	}
 
-
-	@Test
-	public void catalogFilterTest() {
-		page.navigate(URL);
-		page.locator("#filter-text").fill("moon");
+	private void filterOn(String text) {
+		page.getByTestId("filter-text").fill(text);
 		page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Filter")).click();
-		// Find all <tr> elements inside the tbody
-		Locator rows = page.locator("tbody").locator("tr");
-		// Assert that the number of rows is exactly 1
-		assertThat(rows).hasCount(1);
-		assertThat(page.getByTestId("event-name-2")).hasText("To the Moon and Back");
-		// text has style text-transform capitalize
-		assertThat(page.getByTestId("event-name-2")).hasCSS("text-transform", "capitalize");
-		page.screenshot(new Page.ScreenshotOptions().setPath(Path.of("text-transform-capitalize.png")));
-		System.out.println(page.getByTestId("event-name-2").textContent());
 	}
 
+	@Test
+	void filterShowsOnlyMatchingEvent() {
+		filterOn("moon");
+
+		Locator rows = page.locator("tbody").locator("tr");
+		assertThat(rows).hasCount(1);
+		assertThat(page.getByTestId("event-name-2")).hasText("To the Moon and Back");
+	}
+
+	@Test
+	void eventNameIsCapitalizedByCss() {
+		filterOn("moon");
+
+		// the text in the DOM is unchanged, only the rendering is capitalized
+		assertThat(page.getByTestId("event-name-2")).hasCSS("text-transform", "capitalize");
+	}
+
+	@Test
+	void filterWithoutMatchShowsNoEvents() {
+		filterOn("hocus pocus");
+
+		assertThat(page.locator("tbody").locator("tr")).hasCount(0);
+	}
+
+	// Exercise: the filter lowercases the event name but not the search text. Fix main.js and enable this test.
+	@Test
+	@Disabled("Known bug: filter is case sensitive for the search text")
+	void filterIsCaseInsensitive() {
+		filterOn("Moon");
+
+		assertThat(page.locator("tbody").locator("tr")).hasCount(1);
+	}
 }

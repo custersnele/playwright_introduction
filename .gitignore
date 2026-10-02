@@ -1,0 +1,4 @@
+target/
+.idea/
+*.png
+!web/app/img/*.png

@@ -1,4 +1,4 @@
-package be.pxl.best.pratices.pages;
+package be.pxl.best.practices.pages;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;

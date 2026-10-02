@@ -1,7 +1,7 @@
-package be.pxl.best.pratices.tests;
+package be.pxl.best.practices.tests;
 
-import be.pxl.best.pratices.utils.BrowserFactory;
-import be.pxl.best.pratices.pages.CatalogPage;
+import be.pxl.best.practices.utils.BrowserFactory;
+import be.pxl.best.practices.pages.CatalogPage;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Playwright;

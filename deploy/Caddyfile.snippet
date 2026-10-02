@@ -1,0 +1,6 @@
+# Add this block to your existing Caddyfile, next to restful-booker-tst.duckdns.org
+# Replace the name with the duckdns subdomain you create for this app.
+globoticket-tst.duckdns.org {
+	redir / /app/catalog.html
+	reverse_proxy localhost:5001
+}

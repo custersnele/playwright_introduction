@@ -1,4 +1,4 @@
-package be.pxl.best.pratices.utils;
+package be.pxl.best.practices.utils;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;

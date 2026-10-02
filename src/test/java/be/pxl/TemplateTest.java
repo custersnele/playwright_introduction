@@ -15,7 +15,7 @@ class TemplateTest {
 	// Shared between all tests in this class.
 	private static Playwright playwright;
 	private static Browser browser;
-	private String URL = "http://localhost:5001/app/catalog.html";
+	private static final String URL = TestConfig.appUrl() + "catalog.html";
 
 	// New instance for each test method.
 	private BrowserContext context;
@@ -24,7 +24,7 @@ class TemplateTest {
 	@BeforeAll
 	static void launchBrowser() {
 		playwright = Playwright.create();
-		BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(false);
+		BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(TestConfig.headless());
 		browser = playwright.chromium().launch(options);
 	}
 

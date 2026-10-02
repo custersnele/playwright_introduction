@@ -12,19 +12,30 @@
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Override with e.g. mvn test -Dapp.url=https://your-server/app/ -Dheadless=false -->
+		<app.url>http://localhost:5001/app/</app.url>
+		<browser.type>chromium</browser.type>
+		<headless>true</headless>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.microsoft.playwright</groupId>
 			<artifactId>playwright</artifactId>
-			<version>1.47.0</version>
+			<version>1.63.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.11.2</version>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.11.4</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Only used for the Selenium vs Playwright comparison -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.50.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -35,6 +46,13 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.3.1</version> <!-- Or newer -->
+				<configuration>
+					<systemPropertyVariables>
+						<app.url>${app.url}</app.url>
+						<browser.type>${browser.type}</browser.type>
+						<headless>${headless}</headless>
+					</systemPropertyVariables>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
