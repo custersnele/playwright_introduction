@@ -50,7 +50,9 @@ class FilterEventsSeleniumTest {
 
 		List<?> rows = driver.findElements(By.cssSelector("tbody tr"));
 		assertEquals(1, rows.size());
+		// getText() returns the rendered text ("To The Moon And Back": the CSS capitalizes it),
+		// Playwright's hasText compares the DOM text, so read the textContent property here
 		assertEquals("To the Moon and Back",
-				driver.findElement(By.cssSelector("[data-testid='event-name-2']")).getText());
+				driver.findElement(By.cssSelector("[data-testid='event-name-2']")).getDomProperty("textContent"));
 	}
 }

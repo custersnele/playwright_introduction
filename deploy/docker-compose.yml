@@ -1,9 +1,26 @@
 # Run on the server from the repository root:  docker compose -f deploy/docker-compose.yml up -d --build
+# Planted bugs of the ticket service: BUGS=total,truncate,date,vat,dupes (or "all"); empty = a correct service.
+#   BUGS=all docker compose -f deploy/docker-compose.yml up -d
+name: globoticket
+
 services:
   globoticket:
     build: ../web
     container_name: globoticket-frontend
     restart: unless-stopped
+    depends_on:
+      - ticket-service
     ports:
       # only reachable from the server itself; Caddy handles the public HTTPS traffic
       - "127.0.0.1:5001:80"
+
+  ticket-service:
+    build: ../ticket-service
+    container_name: globoticket-ticket-service
+    restart: unless-stopped
+    mem_limit: 256m
+    environment:
+      BUGS: "${BUGS:-}"
+      # lets a request switch bugs on/off with the X-Bugs header (instructor demos); keep false during the bug hunt
+      ALLOW_BUG_HEADER: "${ALLOW_BUG_HEADER:-false}"
+    # no ports: only the frontend container (nginx, /api/) can reach it

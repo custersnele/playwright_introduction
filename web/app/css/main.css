@@ -256,3 +256,23 @@ td, th {
   padding-left: 5px;
   text-decoration: none;
 }
+.checkout {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 20px 0;
+}
+.checkout label {
+  font-size: 12px;
+}
+.checkout input {
+  font-size: 12px;
+  padding: 6px;
+  width: 260px;
+}
+#checkout-message {
+  font-size: 12px;
+  margin: 0;
+  width: 100%;
+}

@@ -28,6 +28,7 @@ document.getElementById('place-order').addEventListener('click', function () {
 	const orderDetails = {
 		eventId: event.id,
 		eventName: event.name,
+		eventArtist: event.artist,
 		eventDate: event.date,
 		eventPrice: event.price,
 		eventQuantity: quantity
@@ -38,3 +39,11 @@ document.getElementById('place-order').addEventListener('click', function () {
 	// Redirect to basket.html
 	window.location.href = 'basket.html';
 });
+
+// Show the number of tickets in the basket (stored by "Place Order") in the header
+(function showBasketCount() {
+	const stored = localStorage.getItem('orderDetails');
+	if (stored) {
+		document.getElementById('ticket-count').innerText = JSON.parse(stored).eventQuantity;
+	}
+})();

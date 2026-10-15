@@ -37,3 +37,11 @@ document.getElementById('filter-button').addEventListener('click', function() {
 
 // Initial display of all events
 displayEvents(events);
+
+// Show the number of tickets in the basket (stored by "Place Order") in the header
+(function showBasketCount() {
+	const stored = localStorage.getItem('orderDetails');
+	if (stored) {
+		document.getElementById('ticket-count').innerText = JSON.parse(stored).eventQuantity;
+	}
+})();

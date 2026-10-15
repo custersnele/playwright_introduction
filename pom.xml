@@ -38,6 +38,19 @@
 			<version>4.50.0</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- Only used to inspect the PDF tickets: text extraction, rendering, QR code -->
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>3.0.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.5.3</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

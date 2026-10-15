@@ -11,7 +11,7 @@
     <h1><img src="img/globoticket-horizontal-white.svg"></h1>
     <div class="header-cart">
       <img src="img/cart.svg" />
-      <p><span id="ticket-count">0</span> tickets</p>
+      <p><span id="ticket-count" data-testid="ticket-count">0</span> tickets</p>
     </div>
   </header>
   <section>
@@ -46,6 +46,12 @@
       </table>
     </div>
   </section>
+  <section class="checkout">
+    <label for="customer-name">Name on the ticket</label>
+    <input type="text" id="customer-name" data-testid="customer-name" />
+    <button id="checkout-button" data-testid="checkout-button">Checkout</button>
+    <p id="checkout-message" data-testid="checkout-message" role="status"></p>
+  </section>
   <section>
     <p class="back-to-catalog"><img src="img/back-arrow.svg" /><a href="catalog.html">Back to event catalog</a></p>
   </section>
@@ -79,6 +85,42 @@
         // Update the quantity in localStorage
         orderDetails.eventQuantity = newQuantity;
         localStorage.setItem('orderDetails', JSON.stringify(orderDetails));
+      });
+
+      // Checkout: ask the ticket service for a PDF and download it
+      document.getElementById('checkout-button').addEventListener('click', async function () {
+        const message = document.getElementById('checkout-message');
+        const customerName = document.getElementById('customer-name').value.trim();
+        if (!customerName) {
+          message.innerText = 'Please enter the name on the ticket.';
+          return;
+        }
+        message.innerText = '';
+        const response = await fetch('/api/tickets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventName: orderDetails.eventName,
+            artist: orderDetails.eventArtist,
+            eventDate: orderDetails.eventDate,
+            quantity: parseInt(orderDetails.eventQuantity),
+            unitPrice: pricePerTicket,
+            customerName: customerName,
+            purchasedAt: new Date().toISOString()
+          })
+        });
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          message.innerText = 'Checkout failed: ' + (error.error || response.status);
+          return;
+        }
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(await response.blob());
+        link.download = 'ticket.pdf';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        message.innerText = 'Your ticket has been downloaded.';
       });
     } else {
       // If no order details found, show empty state or redirect to catalog
