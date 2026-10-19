@@ -22,6 +22,10 @@ public class BasketPage extends BasePage {
 		return page.getByTestId("event-total");
 	}
 
+	public Locator emptyMessage() {
+		return page.getByText("No items in your basket.");
+	}
+
 	public Locator message() {
 		return page.getByTestId("checkout-message");
 	}

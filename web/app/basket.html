@@ -9,10 +9,10 @@
 <div class="container">
   <header>
     <h1><img src="img/globoticket-horizontal-white.svg"></h1>
-    <div class="header-cart">
+    <a class="header-cart" href="basket.html" data-testid="cart-link" title="Go to basket">
       <img src="img/cart.svg" />
       <p><span id="ticket-count" data-testid="ticket-count">0</span> tickets</p>
-    </div>
+    </a>
   </header>
   <section>
     <div class="table">
@@ -121,6 +121,13 @@
         link.click();
         link.remove();
         message.innerText = 'Your ticket has been downloaded.';
+
+        // The order is paid: empty the basket and the header counter
+        localStorage.removeItem('orderDetails');
+        document.getElementById('ticket-count').innerText = '0';
+        document.getElementById('basket-row').innerHTML = '<td colspan="5">No items in your basket.</td>';
+        document.getElementById('customer-name').value = '';
+        document.getElementById('checkout-button').disabled = true;
       });
     } else {
       // If no order details found, show empty state or redirect to catalog

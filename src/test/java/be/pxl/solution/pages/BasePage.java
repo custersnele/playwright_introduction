@@ -24,6 +24,12 @@ public abstract class BasePage {
 		return page.getByTestId("ticket-count");
 	}
 
+	/** The cart in the header links to the basket. */
+	public BasketPage openBasket() {
+		page.getByTestId("cart-link").click();
+		return new BasketPage(page);
+	}
+
 	public Locator logo() {
 		return page.locator("header h1 img");
 	}

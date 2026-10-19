@@ -45,6 +45,8 @@ public class TC5_CheckoutTest {
 		Download download = basket.checkout("Zoë Łukasz");
 		assertEquals("ticket.pdf", download.suggestedFilename());
 		assertThat(basket.message()).hasText("Your ticket has been downloaded.");
+		assertThat(basket.ticketCount()).hasText("0");
+		assertThat(basket.emptyMessage()).isVisible();
 
 		PdfTicket ticket = PdfTicket.from(Files.readAllBytes(download.path()));
 		assertEquals("To the Moon and Back", ticket.valueOf("Event:"));
@@ -72,6 +74,28 @@ public class TC5_CheckoutTest {
 		assertThat(catalog.ticketCount()).hasText("4");
 		details.navigate(2);
 		assertThat(details.ticketCount()).hasText("4");
+	}
+
+	@Test
+	@DisplayName("The cart in the header opens the basket, and it is empty again after checkout")
+	void cartLinkAndEmptyBasketAfterCheckout(Page page) {
+		EventDetailPage details = new EventDetailPage(page);
+		details.navigate(3);
+		details.selectQuantity(2);
+		details.placeOrder();
+
+		CatalogPage catalog = new CatalogPage(page);
+		catalog.navigate();
+		assertThat(catalog.ticketCount()).hasText("2");
+		BasketPage basket = catalog.openBasket();
+		assertThat(basket.eventName()).hasText("The State of Affairs: Mariam Live!");
+
+		basket.checkout("Ann Peeters");
+		assertThat(basket.ticketCount()).hasText("0");
+
+		catalog.navigate();
+		assertThat(catalog.ticketCount()).hasText("0");
+		assertThat(catalog.openBasket().emptyMessage()).isVisible();
 	}
 
 	@Test
