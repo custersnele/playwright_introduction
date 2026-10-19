@@ -47,6 +47,7 @@ public class TC5_CheckoutTest {
 		assertThat(basket.message()).hasText("Your ticket has been downloaded.");
 		assertThat(basket.ticketCount()).hasText("0");
 		assertThat(basket.emptyMessage()).isVisible();
+		assertThat(basket.checkoutButton()).isHidden();
 
 		PdfTicket ticket = PdfTicket.from(Files.readAllBytes(download.path()));
 		assertEquals("To the Moon and Back", ticket.valueOf("Event:"));
@@ -96,6 +97,24 @@ public class TC5_CheckoutTest {
 		catalog.navigate();
 		assertThat(catalog.ticketCount()).hasText("0");
 		assertThat(catalog.openBasket().emptyMessage()).isVisible();
+	}
+
+	@Test
+	@DisplayName("Remove the item from the basket")
+	void removeItemFromBasket(Page page) {
+		EventDetailPage details = new EventDetailPage(page);
+		details.navigate(1);
+		details.selectQuantity(3);
+		BasketPage basket = details.placeOrder();
+		assertThat(basket.ticketCount()).hasText("3");
+
+		basket.remove();
+		assertThat(basket.emptyMessage()).isVisible();
+		assertThat(basket.ticketCount()).hasText("0");
+		assertThat(basket.checkoutButton()).isHidden();
+
+		new CatalogPage(page).navigate();
+		assertThat(basket.ticketCount()).hasText("0");
 	}
 
 	@Test

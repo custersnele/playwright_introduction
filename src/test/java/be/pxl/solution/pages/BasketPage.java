@@ -35,6 +35,14 @@ public class BasketPage extends BasePage {
 		page.getByTestId("update-button").click();
 	}
 
+	public void remove() {
+		page.getByTestId("remove-button").click();
+	}
+
+	public Locator checkoutButton() {
+		return page.getByTestId("checkout-button");
+	}
+
 	public void fillName(String customerName) {
 		page.getByTestId("customer-name").fill(customerName);
 	}

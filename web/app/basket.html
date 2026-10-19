@@ -14,7 +14,7 @@
       <p><span id="ticket-count" data-testid="ticket-count">0</span> tickets</p>
     </a>
   </header>
-  <section>
+  <section class="basket-section">
     <div class="table">
       <table>
         <thead>
@@ -24,6 +24,7 @@
           <th scope="col">Price per ticket</th>
           <th scope="col">Quantity</th>
           <th scope="col">Total</th>
+          <th scope="col"><span class="visually-hidden">Remove</span></th>
         </tr>
         </thead>
         <tbody>
@@ -41,27 +42,40 @@
             <button id="update-button" data-testid="update-button">Update</button>
           </td>
           <td class="event-total" id="event-total" data-testid="event-total"></td>
+          <td class="event-remove">
+            <button id="remove-button" data-testid="remove-button" aria-label="Remove from basket">Remove</button>
+          </td>
         </tr>
         </tbody>
       </table>
     </div>
   </section>
-  <section class="checkout">
-    <label for="customer-name">Name on the ticket</label>
-    <input type="text" id="customer-name" data-testid="customer-name" />
-    <button id="checkout-button" data-testid="checkout-button">Checkout</button>
-    <p id="checkout-message" data-testid="checkout-message" role="status"></p>
+  <section class="checkout" id="checkout-section">
+    <div class="checkout-row">
+      <label for="customer-name" class="checkout-label">Name on the ticket</label>
+      <input type="text" id="customer-name" data-testid="customer-name" />
+      <button id="checkout-button" data-testid="checkout-button">Checkout</button>
+    </div>
   </section>
+  <p id="checkout-message" class="checkout-message" data-testid="checkout-message" role="status"></p>
   <section>
     <p class="back-to-catalog"><img src="img/back-arrow.svg" /><a href="catalog.html">Back to event catalog</a></p>
   </section>
 
   <script>
-    // Retrieve the order details from localStorage
+    const EMPTY_BASKET_HTML = '<td colspan="6">No items in your basket.</td>';
     const orderDetails = JSON.parse(localStorage.getItem('orderDetails'));
 
+    // Empty basket: no order in storage, the header counter at 0 and no checkout form
+    function showEmptyBasket() {
+      localStorage.removeItem('orderDetails');
+      document.getElementById('ticket-count').innerText = '0';
+      document.getElementById('basket-row').innerHTML = EMPTY_BASKET_HTML;
+      document.getElementById('customer-name').value = '';
+      document.getElementById('checkout-section').hidden = true;
+    }
+
     if (orderDetails) {
-      // Populate the basket with the order details
       const pricePerTicket = parseFloat(orderDetails.eventPrice.replace('$', ''));
       const total = pricePerTicket * parseInt(orderDetails.eventQuantity);
 
@@ -78,7 +92,6 @@
         const newQuantity = document.getElementById('quantity-dropdown').value;
         const newTotal = pricePerTicket * newQuantity;
 
-        // Update total and quantity in the basket
         document.getElementById('event-total').innerText = `$${newTotal.toFixed(2)}`;
         document.getElementById('ticket-count').innerText = newQuantity;
 
@@ -87,7 +100,13 @@
         localStorage.setItem('orderDetails', JSON.stringify(orderDetails));
       });
 
-      // Checkout: ask the ticket service for a PDF and download it
+      // Remove the item from the basket
+      document.getElementById('remove-button').addEventListener('click', function () {
+        document.getElementById('checkout-message').innerText = '';
+        showEmptyBasket();
+      });
+
+      // Checkout: ask the ticket service for a PDF and download it, then empty the basket
       document.getElementById('checkout-button').addEventListener('click', async function () {
         const message = document.getElementById('checkout-message');
         const customerName = document.getElementById('customer-name').value.trim();
@@ -120,18 +139,12 @@
         document.body.appendChild(link);
         link.click();
         link.remove();
-        message.innerText = 'Your ticket has been downloaded.';
 
-        // The order is paid: empty the basket and the header counter
-        localStorage.removeItem('orderDetails');
-        document.getElementById('ticket-count').innerText = '0';
-        document.getElementById('basket-row').innerHTML = '<td colspan="5">No items in your basket.</td>';
-        document.getElementById('customer-name').value = '';
-        document.getElementById('checkout-button').disabled = true;
+        showEmptyBasket();
+        message.innerText = 'Your ticket has been downloaded.';
       });
     } else {
-      // If no order details found, show empty state or redirect to catalog
-      document.getElementById('basket-row').innerHTML = '<td colspan="5">No items in your basket.</td>';
+      showEmptyBasket();
     }
   </script>
 </div>
