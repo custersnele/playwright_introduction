@@ -1,6 +1,7 @@
 package be.pxl.solution.pages;
 
 import com.microsoft.playwright.Locator;
+import io.qameta.allure.Step;
 import com.microsoft.playwright.Page;
 
 /**
@@ -25,6 +26,7 @@ public abstract class BasePage {
 	}
 
 	/** The cart in the header links to the basket. */
+	@Step("Open the basket")
 	public BasketPage openBasket() {
 		page.getByTestId("cart-link").click();
 		return new BasketPage(page);

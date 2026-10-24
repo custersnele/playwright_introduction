@@ -63,3 +63,23 @@ With `ALLOW_BUG_HEADER=true` a request can choose its bugs with the header `X-Bu
 
 ### Instructor note: planted bug
 The filter in `web/app/js/main.js` lowercases the event name but not the search text, so searching for `Moon` finds nothing while `moon` works. `FilterEventsTest.filterIsCaseInsensitive` is `@Disabled` until the bug is fixed.
+
+### Test automation and reporting
+Run a subset with JUnit tags (see `Tags.java`: `smoke`, `ui`, `e2e`, `component`, `pdf`):
+
+```
+mvn test -Dgroups=smoke                    # only the smoke tests
+mvn test -DexcludedGroups=e2e              # everything except the end-to-end tests
+mvn test -Dgroups="component & pdf"        # tag expression
+```
+
+| Report | Command | Where |
+|---|---|---|
+| Surefire XML + text | `mvn test` | `target/surefire-reports/` |
+| Surefire HTML | `mvn test surefire-report:report` | `target/site/surefire-report.html` |
+| Allure | `mvn test` then `npx allure generate target/allure-results -o target/allure-report` and `npx allure open target/allure-report` | `target/allure-report/` (needs Node.js) |
+| Playwright trace | `mvn test` (kept only for failed tests; `-Dtrace=on` keeps all) | `target/test-results/<test>/trace.zip` |
+
+Open a trace with `mvn test-compile exec:java -D exec.classpathScope=test -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="show-trace target/test-results/<test>/trace.zip"`.
+
+`mvn verify -Pci` is what the pipeline runs (`.github/workflows/tests.yml`): headless, and a failing test is retried once so a flaky test shows up as a flake instead of a failure. Start the workflow by hand from the Actions tab to choose the planted bugs (`all`) and the tags.

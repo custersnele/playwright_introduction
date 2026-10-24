@@ -10,7 +10,10 @@ import be.pxl.solution.pdf.PdfTicket;
 import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.junit.UsePlaywright;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -28,6 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Component tests of the ticket service: no browser, just HTTP + PDF. Fast, and one test per kind of defect,
  * so a failing test name tells you which bug you found.
  */
+@Tag(Tags.COMPONENT)
+@Tag(Tags.PDF)
+@Epic("Globoticket")
+@Feature("Ticket content")
 @UsePlaywright(GlobotOptions.class)
 public class TC3_TicketContentTest {
 

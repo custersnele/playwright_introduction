@@ -10,7 +10,10 @@ import be.pxl.solution.pdf.ImageDiff;
 import be.pxl.solution.pdf.PdfTicket;
 import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.junit.UsePlaywright;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -26,6 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /** Looking deeper into the PDF: metadata, fonts, QR code, and a pixel comparison with a golden image. */
+@Tag(Tags.COMPONENT)
+@Tag(Tags.PDF)
+@Epic("Globoticket")
+@Feature("Ticket PDF structure")
 @UsePlaywright(GlobotOptions.class)
 public class TC4_TicketPdfStructureTest {
 

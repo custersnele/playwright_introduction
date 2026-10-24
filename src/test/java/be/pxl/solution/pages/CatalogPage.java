@@ -1,6 +1,7 @@
 package be.pxl.solution.pages;
 
 import com.microsoft.playwright.Locator;
+import io.qameta.allure.Step;
 import com.microsoft.playwright.Page;
 
 public class CatalogPage extends BasePage {
@@ -16,10 +17,12 @@ public class CatalogPage extends BasePage {
 		this.events = page.locator("#event-list").locator("tr");
 	}
 
+	@Step("Open the catalog")
 	public void navigate() {
 		open("catalog.html");
 	}
 
+	@Step("Search events for '{searchText}'")
 	public void search(String searchText) {
 		searchInput.fill(searchText);
 		filterButton.click();
@@ -38,6 +41,7 @@ public class CatalogPage extends BasePage {
 	}
 
 	/** Clicking "Purchase Details" navigates, so the method returns the page you land on. */
+	@Step("Open the details of event {eventId}")
 	public EventDetailPage openEvent(int eventId) {
 		page.getByTestId("purchase-button-" + eventId).click();
 		return new EventDetailPage(page);

@@ -11,7 +11,10 @@ import be.pxl.solution.pdf.PdfTicket;
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -25,10 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * End-to-end: a few UI tests that follow the whole journey, including the PDF download.
  * The detailed checks of the ticket content are in TC3/TC4: faster and without a browser.
  */
+@Tag(Tags.E2E)
+@Epic("Globoticket")
+@Feature("Checkout")
 @UsePlaywright(GlobotOptions.class)
 public class TC5_CheckoutTest {
 
 	@Test
+	@Tag(Tags.SMOKE)
 	@DisplayName("Order a ticket and download the PDF")
 	void orderTicketAndDownloadPdf(Page page) throws IOException {
 		CatalogPage catalog = new CatalogPage(page);

@@ -4,7 +4,10 @@ import be.pxl.solution.fixtures.GlobotOptions;
 import be.pxl.solution.pages.CatalogPage;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.junit.UsePlaywright;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -14,10 +17,14 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
  * the Playwright fixtures create and close Playwright, Browser, BrowserContext and Page for us.
  * (TC1 spends more than 20 lines on lifecycle code; this class has none.)
  */
+@Tag(Tags.UI)
+@Epic("Globoticket")
+@Feature("Catalog")
 @UsePlaywright(GlobotOptions.class)
 public class TC2_CatalogFilterFixtureTest {
 
 	@Test
+	@Tag(Tags.SMOKE)
 	@DisplayName("Filter catalog and verify event")
 	void catalogFilterTest(Page page) {
 		CatalogPage catalogPage = new CatalogPage(page);

@@ -16,7 +16,31 @@
 		<app.url>http://localhost:5001/app/</app.url>
 		<browser.type>chromium</browser.type>
 		<headless>true</headless>
+		<!-- on | off | retain-on-failure -->
+		<trace>retain-on-failure</trace>
+		<allure.version>2.35.5</allure.version>
+		<aspectj.version>1.9.25</aspectj.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- keeps junit-platform-launcher (pulled in by Allure) aligned with Jupiter -->
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>5.14.4</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.qameta.allure</groupId>
+				<artifactId>allure-bom</artifactId>
+				<version>${allure.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -28,7 +52,13 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.11.4</version>
+			<version>5.14.4</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Allure results (target/allure-results); @Step and @Attachment need the AspectJ agent in Surefire's argLine -->
+		<dependency>
+			<groupId>io.qameta.allure</groupId>
+			<artifactId>allure-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<!-- Only used for the Selenium vs Playwright comparison -->
@@ -58,16 +88,46 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.3.1</version> <!-- Or newer -->
+				<version>3.5.6</version>
 				<configuration>
+					<argLine>-javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"</argLine>
 					<systemPropertyVariables>
 						<app.url>${app.url}</app.url>
 						<browser.type>${browser.type}</browser.type>
 						<headless>${headless}</headless>
+						<trace>${trace}</trace>
 					</systemPropertyVariables>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjweaver</artifactId>
+						<version>${aspectj.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<!-- mvn test surefire-report:report  ->  target/site/surefire-report.html -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>3.5.6</version>
+				<configuration>
+					<linkXRef>false</linkXRef>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!-- mvn verify -Pci : what the pipeline uses. A failing test is run once more; if it then passes, Surefire reports it as a flake. -->
+		<profile>
+			<id>ci</id>
+			<properties>
+				<headless>true</headless>
+				<trace>retain-on-failure</trace>
+				<surefire.rerunFailingTestsCount>1</surefire.rerunFailingTestsCount>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>

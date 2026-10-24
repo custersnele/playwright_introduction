@@ -1,0 +1,85 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      bugs:
+        description: "Planted bugs of the ticket service (all, or e.g. total,vat). Empty = correct service."
+        required: false
+        default: ""
+      groups:
+        description: "JUnit tag expression, e.g. smoke or e2e. Empty = all tests."
+        required: false
+        default: ""
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Start the web application and the ticket service
+        run: docker compose -f deploy/docker-compose.yml up -d --build
+        env:
+          BUGS: ${{ inputs.bugs }}
+
+      - name: Wait until the application answers
+        run: curl --retry 20 --retry-delay 2 --retry-connrefused -fsS http://localhost:5001/app/catalog.html > /dev/null
+
+      - name: Install the browser and its system libraries
+        run: mvn -B -q test-compile exec:java -D exec.classpathScope=test -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps chromium"
+
+      # a red test must not stop the reports from being built: ignore the failure here, fail the job in the last step
+      - name: Run the tests
+        id: tests
+        run: mvn -B verify -Pci -Dmaven.test.failure.ignore=true ${{ inputs.groups != '' && format('-Dgroups="{0}"', inputs.groups) || '' }}
+
+      - name: Surefire report
+        if: always()
+        run: mvn -B -q surefire-report:report-only
+
+      - name: Allure report
+        if: always()
+        run: npx --yes allure generate target/allure-results -o target/allure-report
+
+      - name: Upload reports and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            target/surefire-reports
+            target/site/surefire-report.html
+            target/allure-report
+            target/test-results
+          if-no-files-found: ignore
+
+      - name: Summary
+        if: always()
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import glob, xml.etree.ElementTree as ET
+          t = f = e = s = fl = 0
+          for p in glob.glob("target/surefire-reports/TEST-*.xml"):
+              r = ET.parse(p).getroot()
+              t += int(r.get("tests")); f += int(r.get("failures")); e += int(r.get("errors")); s += int(r.get("skipped"))
+              fl += len(r.findall(".//flakyFailure"))
+          print("| tests | failed | errors | skipped | flaky |\n|---|---|---|---|---|")
+          print(f"| {t} | {f} | {e} | {s} | {fl} |")
+          PY
+
+      - name: Fail the job when tests failed
+        if: always()
+        run: |
+          if grep -lE '<(failure|error)' target/surefire-reports/TEST-*.xml > /dev/null 2>&1; then
+            echo "There are failing tests, see the uploaded reports."; exit 1
+          fi
