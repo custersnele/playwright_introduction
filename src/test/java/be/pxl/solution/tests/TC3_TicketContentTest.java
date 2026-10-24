@@ -41,7 +41,7 @@ public class TC3_TicketContentTest {
 
 	@ParameterizedTest
 	@EnumSource(OrderType.class)
-	@Issue("GLOBO-1")
+	@Issue("1")
 	@DisplayName("Total is quantity x unit price")
 	void totalIsCorrect(OrderType type, APIRequestContext request) {
 		Order order = OrderFactory.create(type);

@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       bugs:
-        description: "Planted bugs of the ticket service (all, or e.g. total,vat). Empty = correct service."
+        description: "Planted bugs of the ticket service: total (default), all, a list like total,vat, or clean for a correct service."
         required: false
-        default: ""
+        default: "total"
       groups:
         description: "JUnit tag expression, e.g. smoke or e2e. Empty = all tests."
         required: false
@@ -27,16 +27,23 @@ jobs:
           java-version: 21
           cache: maven
 
+      # Demo setup: only the "total" bug is on, so TC3 "Total is quantity x unit price" fails (linked to issue #1).
+      # Pushes use the default; a manual run can choose another value.
+      - name: Choose the planted bugs
+        run: |
+          BUGS="${{ inputs.bugs }}"
+          BUGS="${BUGS:-total}"
+          if [ "$BUGS" = "clean" ]; then BUGS=""; fi
+          echo "BUGS=$BUGS" >> "$GITHUB_ENV"
+
       - name: Start the web application and the ticket service
         run: docker compose -f deploy/docker-compose.yml up -d --build
-        env:
-          BUGS: ${{ inputs.bugs }}
 
       - name: Wait until the application answers
         run: curl --retry 20 --retry-delay 2 --retry-connrefused -fsS http://localhost:5001/app/catalog.html > /dev/null
 
-      - name: Install the browser and its system libraries
-        run: mvn -B -q test-compile exec:java -D exec.classpathScope=test -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps chromium"
+      - name: Install the browsers (chromium, firefox, webkit) and their system libraries
+        run: mvn -B -q test-compile exec:java -D exec.classpathScope=test -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps"
 
       # a red test must not stop the reports from being built: ignore the failure here, fail the job in the last step
       - name: Run the tests
