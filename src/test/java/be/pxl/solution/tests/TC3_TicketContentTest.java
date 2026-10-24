@@ -12,6 +12,7 @@ import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.junit.UsePlaywright;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Issue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,7 @@ public class TC3_TicketContentTest {
 
 	@ParameterizedTest
 	@EnumSource(OrderType.class)
+	@Issue("GLOBO-1")
 	@DisplayName("Total is quantity x unit price")
 	void totalIsCorrect(OrderType type, APIRequestContext request) {
 		Order order = OrderFactory.create(type);
